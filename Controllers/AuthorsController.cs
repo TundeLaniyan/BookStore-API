@@ -2,6 +2,7 @@
 using BookStore_API.Contracts;
 using BookStore_API.Data;
 using BookStore_API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -16,6 +17,7 @@ namespace BookStore_API.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public class AuthorsController : ControllerBase
     {
@@ -35,6 +37,7 @@ namespace BookStore_API.Controllers
         /// </summary>
         /// <returns>List Of Authors</returns>
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAuthors()
@@ -59,6 +62,7 @@ namespace BookStore_API.Controllers
         /// <param name="id"></param>
         /// <returns>An author's record</returns>
         [HttpGet("{id}")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -89,6 +93,7 @@ namespace BookStore_API.Controllers
         /// <param name="author"></param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -132,6 +137,7 @@ namespace BookStore_API.Controllers
         /// <param name="author"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -178,17 +184,19 @@ namespace BookStore_API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrator")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(int id)
         {
+            var location = GetControllerActionNames();
             try
             {
-                _logger.LogInfo($"Author with id:{id} delete attempted");
+                _logger.LogInfo($"{location}: Deleting attempted on record with id: {id}");
                 if (id < 1)
                 {
-                    _logger.LogWarn("Author delete failed with bad data");
+                    _logger.LogWarn($"{location}: Delete failed with bad data - id: {id}");
                     return BadRequest();
                 }
 
@@ -196,21 +204,21 @@ namespace BookStore_API.Controllers
                 var isExists = await _authorRepository.IsExists(id);
                 if (!isExists)
                 {
-                    _logger.LogWarn($"Author with id:{id} was not found");
+                    _logger.LogWarn($"{location}: Failed to retrieve record with id: {id}");
                     return NotFound();
                 }
                 var author = await _authorRepository.FindById(id);
                 var isSuccess = await _authorRepository.Delete(author);
                 if (!isSuccess)
                 {
-                    return InteralError("Author delete failed");
+                    return InteralError($"{location}: Delete failed for record with id: {id}");
                 }
-                _logger.LogInfo($"Author with id:{id} successfully deleted");
+                _logger.LogInfo($"{location}: Record with id: {id} successfully deleted");
                 return NoContent();
             }
             catch (Exception e)
             {
-                return InteralError($"{e.Message} - {e.InnerException}");
+                return InteralError($"{location}: {e.Message} - {e.InnerException}");
             }
         }
         private string GetControllerActionNames()

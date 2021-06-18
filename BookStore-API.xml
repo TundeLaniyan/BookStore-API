@@ -79,7 +79,7 @@
         </member>
         <member name="M:BookStore_API.Controllers.BooksController.Delete(System.Int32)">
             <summary>
-            Removes an book by id
+            Removes a book by id
             </summary>
             <param name="id"></param>
             <returns></returns>
@@ -100,6 +100,13 @@
             Get a Value
             </summary>
             <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BookStore_API.Controllers.UsersController.Login(BookStore_API.DTOs.UserDTO)">
+            <summary>
+            User Login Endpoint
+            </summary>
+            <param name="userDTO"></param>
             <returns></returns>
         </member>
     </members>
