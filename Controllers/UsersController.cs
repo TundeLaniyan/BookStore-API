@@ -33,18 +33,52 @@ namespace BookStore_API.Controllers
             _config = config;
         }
         /// <summary>
+        /// User Register Endpoint
+        /// </summary>
+        /// <param name="userDTO"></param>
+        /// <returns></returns>
+        [Route("register")]
+        [HttpPost]
+        public async Task<IActionResult> Register([FromBody] UserDTO userDTO)
+        {
+            var location = GetControllerActionNames();
+            try
+            {
+                var username = userDTO.EmailAddress;
+                var password = userDTO.Password;
+                _logger.LogError($"{location}: Registration Attempt for {username}");
+                var user = new IdentityUser { Email = username, UserName = username };
+                var result = await _userManager.CreateAsync(user, password);
+
+                if (!result.Succeeded)
+                {
+                    foreach(var error in result.Errors)
+                    {
+                        _logger.LogError($"{location}: {error.Code} {error.Description}");                        
+                    }
+                    return InteralError($"{location}: {username} User Registration Attempt Failed");
+                }
+                return Ok(new { result.Succeeded });
+            }
+            catch (Exception e)
+            {
+                return InteralError($"{location}: {e.Message} - {e.InnerException}");
+            }
+        }
+        /// <summary>
         /// User Login Endpoint
         /// </summary>
         /// <param name="userDTO"></param>
         /// <returns></returns>
         [AllowAnonymous]
+        [Route("login")]
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] UserDTO userDTO)
         {
             var location = GetControllerActionNames();
             try
             {
-                var username = userDTO.Username;
+                var username = userDTO.EmailAddress;
                 var password = userDTO.Password;
                 _logger.LogInfo($"{location}: Login attempt from user {username}");
                 var result = await _signInManager.PasswordSignInAsync(username, password, false, false);
