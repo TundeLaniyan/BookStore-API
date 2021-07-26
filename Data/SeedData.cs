@@ -24,18 +24,36 @@ namespace BookStore_API.Data
                     await userManager.AddToRoleAsync(user, "Administrator");
                 }
             }
-            if (await userManager.FindByEmailAsync("customer1@gmail.com") == null)
+            if (await userManager.FindByEmailAsync("admin0@bookstore.com") == null)
             {
-                var user = new IdentityUser { UserName = "customer1", Email = "customer1@gmail.com" };
+                var user = new IdentityUser { UserName = "admin0@bookstore.com", Email = "admin0@bookstore.com" };
+                var result = await userManager.CreateAsync(user, "P@ssword1");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, "Administrator");
+                }
+            }
+            if (await userManager.FindByEmailAsync("customer@bookstore.com") == null)
+            {
+                var user = new IdentityUser { UserName = "customer@bookstore.com", Email = "customer@bookstore.com" };
                 var result = await userManager.CreateAsync(user, "P@ssword1");
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(user, "Customer");
                 }
             }
-            if (await userManager.FindByEmailAsync("customer2@gmail.com") == null)
+            if (await userManager.FindByEmailAsync("customer1@bookstore.com") == null)
             {
-                var user = new IdentityUser { UserName = "customer2", Email = "customer2@gmail.com" };
+                var user = new IdentityUser { UserName = "customer1", Email = "customer1@bookstore.com" };
+                var result = await userManager.CreateAsync(user, "P@ssword1");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, "Customer");
+                }
+            }
+            if (await userManager.FindByEmailAsync("customer2@bookstore.com") == null)
+            {
+                var user = new IdentityUser { UserName = "customer2", Email = "customer2@bookstore.com" };
                 var result = await userManager.CreateAsync(user, "P@ssword1");
                 if (result.Succeeded)
                 {
